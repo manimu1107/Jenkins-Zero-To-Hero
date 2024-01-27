@@ -9,7 +9,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 sh 'echo passed'
-                // git branch: 'main', url: 'https://github.com/manimu1107/Jenkins-Zero-To-Hero'
+                //git branch: 'main', url: 'https://github.com/manimu1107/Jenkins-Zero-To-Hero'
             }
         }
         stage('Build and Test') {
@@ -32,15 +32,14 @@ pipeline {
         stage('Build and Push Docker Image') {
             environment {
                 DOCKER_IMAGE = "abhishekf5/ultimate-cicd:${BUILD_NUMBER}"
-                REGISTRY_CREDENTIALS = credentials('docker-cred')
             }
             steps {
                 script {
                     sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && docker build -t ${DOCKER_IMAGE} .'
 
                     // Docker login
-                    withCredentials([string(credentialsId: 'docker-cred', variable: 'DOCKERHUB_CREDENTIALS')]) {
-                        sh "echo $DOCKERHUB_CREDENTIALS | docker login --username $DOCKERHUB_USERNAME_CREDENTIALS --password-stdin docker.io"
+                    withCredentials([usernamePassword(credentialsId: 'docker-cred', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                        sh "docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD"
                     }
 
                     // Debugging statements
