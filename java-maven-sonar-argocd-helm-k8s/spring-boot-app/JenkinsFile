@@ -57,9 +57,21 @@ pipeline {
                         git config user.email "abhishek.xyz@gmail.com"
                         git config user.name "Abhishek Veeramalla"
                         BUILD_NUMBER=${BUILD_NUMBER}
-                        sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+
+                        # Clean the target directory (optional)
+                        rm -rf java-maven-sonar-argocd-helm-k8s/spring-boot-app/target/
+
+                        # Add untracked files and modified files to the staging area
                         git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                        git add java-maven-sonar-argocd-helm-k8s/spring-boot-app/target/
+
+                        # Check git status (optional)
+                        git status
+
+                        # Commit the changes
                         git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+
+                        # Push the changes to the repository
                         git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
                     '''
                 }
