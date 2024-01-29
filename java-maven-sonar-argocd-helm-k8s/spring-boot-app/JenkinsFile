@@ -57,11 +57,22 @@ pipeline {
                     git config user.email "manimu1107@gmail.com"
                     git config user.name "manimu1107"
 
+                    # Print current branch
+                    echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
+
                     # Ensure you are on the "main" branch
                     git checkout main
 
+                    # Print changes
+                    echo "Changes before cleanup:"
+                    git status
+
                     # Clean untracked files
                     git clean -fdX
+
+                    # Print changes after cleanup
+                    echo "Changes after cleanup:"
+                    git status
 
                     # Modify deployment.yml
                     sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
@@ -77,4 +88,3 @@ pipeline {
         }
     }
 }
-
