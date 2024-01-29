@@ -46,23 +46,35 @@ pipeline {
       }
     }
     stage('Update Deployment File') {
-        environment {
-            GIT_REPO_NAME = "Jenkins-Zero-To-Hero"
-            GIT_USER_NAME = "manimu1107"
-        }
-        steps {
+    environment {
+        GIT_REPO_NAME = "Jenkins-Zero-To-Hero"
+        GIT_USER_NAME = "manimu1107"
+    }
+    steps {
+        script {
             withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                 sh '''
                     git config user.email "manimu1107@gmail.com"
                     git config user.name "manimu1107"
-                    BUILD_NUMBER=${BUILD_NUMBER}
+
+                    # Ensure you are on the "main" branch
+                    git checkout main
+
+                    # Clean untracked files
+                    git clean -fdX
+
+                    # Modify deployment.yml
                     sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+
+                    # Add and commit changes
                     git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
-                    git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                    git commit -m "Update deployment image to version ${BUILD_NUMBER}" || true
+
+                    # Push changes to the "main" branch on GitHub
                     git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
                 '''
             }
         }
     }
-  }
 }
+
